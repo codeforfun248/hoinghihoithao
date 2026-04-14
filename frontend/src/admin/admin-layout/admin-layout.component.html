@@ -1,0 +1,81 @@
+<nz-layout class="h-screen">
+  <nz-sider nzCollapsible [(nzCollapsed)]="isCollapsed" [nzTrigger]="null" class="hidden md:block">
+    <div class="flex w-full justify-center items-center">
+      <div class="w-28 p-4 flex justify-center items-center bg-white cursor-pointer">
+        <img
+          src="https://tdmu.edu.vn/img/brand/Logo_TDMU_2024_nguyen_ban.svg"
+          alt=""
+          class="w-full h-full object-cover"
+          routerLink=""
+        />
+      </div>
+    </div>
+    <ul nz-menu nzTheme="dark" nzMode="inline">
+      @for (route of routes; track $index) {
+        <li nz-menu-item nzMatchRouter [nzMatchRouterExact]="true" [routerLink]="[route.route]">
+          <nz-icon [nzType]="route.icon" />
+          <span>{{ route.label }}</span>
+        </li>
+      }
+    </ul>
+  </nz-sider>
+  <nz-layout>
+    <nz-header style="height: var(--height-header)">
+      <div class="px-4 xl:px-0 mx-auto flex items-center justify-between h-full">
+        <span class="hidden md:block">
+          <nz-icon
+            class="trigger"
+            [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"
+            (click)="isCollapsed = !isCollapsed"
+          />
+        </span>
+
+        <span class="md:hidden">
+          <nz-icon
+            class="trigger"
+            [nzType]="openDrawer ? 'menu-unfold' : 'menu-fold'"
+            (click)="openDrawer = !openDrawer"
+          />
+        </span>
+
+        <nz-drawer [nzVisible]="openDrawer" nzPlacement="left" (nzOnClose)="openDrawer = false">
+          <ng-container *nzDrawerContent>
+            <div class="flex w-full justify-center items-center">
+              <div class="w-28 p-4 flex justify-center items-center bg-white cursor-pointer">
+                <img
+                  src="https://tdmu.edu.vn/img/brand/Logo_TDMU_2024_nguyen_ban.svg"
+                  alt=""
+                  class="w-full h-full object-cover"
+                  routerLink=""
+                />
+              </div>
+            </div>
+            <ul nz-menu nzTheme="light" nzMode="inline">
+              @for (route of routes; track $index) {
+                <li
+                  nz-menu-item
+                  nzMatchRouter
+                  [nzMatchRouterExact]="true"
+                  [routerLink]="[route.route]"
+                  (click)="openDrawer = false"
+                >
+                  <nz-icon [nzType]="route.icon" />
+                  <span>{{ route.label }}</span>
+                </li>
+              }
+            </ul>
+          </ng-container>
+        </nz-drawer>
+
+        <div class="mr-4">
+          <app-authenticated-dropdown></app-authenticated-dropdown>
+        </div>
+      </div>
+    </nz-header>
+    <nz-content class="">
+      <div class="inner-content h-full">
+        <router-outlet></router-outlet>
+      </div>
+    </nz-content>
+  </nz-layout>
+</nz-layout>

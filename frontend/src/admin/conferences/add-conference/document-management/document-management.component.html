@@ -1,0 +1,34 @@
+<div class="flex flex-col">
+  <div class="flex items-center justify-between mb-2">
+    <span class="font-semibold text-lg">Tài liệu hội nghị</span>
+
+    <button nz-button nzType="primary" (click)="handleAddDocument()">
+      <nz-icon nzType="plus"></nz-icon>
+      Thêm tài liệu
+    </button>
+  </div>
+
+  <nz-table #nzTable [nzData]="documents" [nzFrontPagination]="false" [nzScroll]="{ x: '800px' }">
+    <thead>
+      <tr>
+        <th nzWidth="100px">Tên</th>
+        <th nzWidth="80px">Thao tác</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (data of nzTable.data; track data) {
+        <tr>
+          <td nzWidth="100px" (click)="handleEditDocument(data)">{{ data.name }}</td>
+          <td nzWidth="80px">
+            <a
+              nz-popconfirm
+              nzPopconfirmTitle="Chắn chắn xóa file viên này?"
+              (nzOnConfirm)="handleDeleteDocument(data)"
+              >Xóa</a
+            >
+          </td>
+        </tr>
+      }
+    </tbody>
+  </nz-table>
+</div>

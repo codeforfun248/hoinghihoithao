@@ -1,0 +1,230 @@
+<div class="flex flex-col h-[85vh] md:h-[80vh] bg-white rounded-lg overflow-hidden">
+  <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+    <div>
+      <h2 class="text-xl font-bold text-gray-900 m-0!">Quản lý bài báo cáo</h2>
+      <p class="text-sm text-gray-500 m-0! mt-1">
+        Danh sách các tài liệu bạn đã nộp cho hội nghị này.
+      </p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button
+        (click)="openCreateForm()"
+        [disabled]="isPastDeadline"
+        class="px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 shadow-sm text-white!"
+        [ngClass]="
+          isPastDeadline
+            ? 'bg-gray-400 cursor-not-allowed opacity-70'
+            : 'bg-blue-600 hover:bg-blue-700 cursor-pointer'
+        "
+      >
+        <nz-icon nzType="plus" nzTheme="outline" /> Thêm tài liệu
+      </button>
+      @if (isPastDeadline) {
+        <span class="text-xs text-red-500 font-semibold bg-red-50 px-2 py-1 rounded ml-3">
+          Đã hết hạn nộp bài
+        </span>
+      }
+
+      <button
+        (click)="closeModal()"
+        class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors cursor-pointer"
+      >
+        <nz-icon nzType="close" nzTheme="outline" class="text-lg" />
+      </button>
+    </div>
+  </div>
+
+  <div class="flex-1 overflow-y-auto p-6 bg-gray-50/30">
+    <nz-spin [nzSpinning]="isLoadingList" nzTip="Đang tải dữ liệu...">
+      @if (submissions.length === 0 && !isLoadingList) {
+        <div
+          class="border-2 border-dashed border-gray-200 rounded-2xl p-12 flex flex-col items-center justify-center text-center mt-10"
+        >
+          <div
+            class="w-20 h-20 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-4"
+          >
+            <nz-icon nzType="inbox" nzTheme="outline" class="text-4xl" />
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900">Chưa có tài liệu nào</h3>
+          <p class="text-gray-500 mt-1 max-w-sm">
+            Bạn chưa nộp bài báo cáo hoặc tài liệu nào cho hội nghị này. Hãy bấm nút "Thêm tài liệu"
+            để bắt đầu.
+          </p>
+        </div>
+      } @else {
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          @for (item of submissions; track item._id) {
+            <div
+              class="bg-white border border-gray-200 rounded-2xl p-5 hover:shadow-md transition-shadow relative group flex flex-col"
+            >
+              <div class="absolute top-4 right-4">
+                <span
+                  class="px-2.5 py-1 rounded-md text-xs font-semibold"
+                  [ngClass]="{
+                    'bg-yellow-100 text-yellow-700': item.status === 'pending',
+                    'bg-blue-100 text-blue-700': item.status === 'under_review',
+                    'bg-green-100 text-green-700': item.status === 'accepted',
+                    'bg-red-100 text-red-700': item.status === 'rejected',
+                  }"
+                >
+                  {{
+                    item.status === 'pending'
+                      ? 'Chờ duyệt'
+                      : item.status === 'under_review'
+                        ? 'Đang phản biện'
+                        : item.status === 'accepted'
+                          ? 'Đã chấp nhận'
+                          : 'Từ chối'
+                  }}
+                </span>
+              </div>
+
+              <div class="flex items-start gap-3 mb-4 pr-24">
+                <div class="p-3 bg-red-50 text-red-500 rounded-xl">
+                  <nz-icon nzType="file-pdf" nzTheme="outline" class="text-2xl" />
+                </div>
+                <div>
+                  <h4
+                    class="font-bold text-gray-900 text-base line-clamp-2 m-0! leading-snug"
+                    [title]="item.title"
+                  >
+                    {{ item.title }}
+                  </h4>
+                  <p class="text-xs text-gray-500 mt-1 m-0!">
+                    {{ item.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between">
+                <a
+                  [href]="item.file_url"
+                  target="_blank"
+                  class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1"
+                >
+                  <nz-icon nzType="eye" nzTheme="outline" /> Xem File
+                </a>
+
+                @if (
+                  (item.status === 'pending' || item.status === 'revision_required') &&
+                  !isPastDeadline
+                ) {
+                  <div class="flex items-center gap-2">
+                    <button
+                      (click)="openEditForm(item)"
+                      class="p-2 text-gray-500 hover:text-orange-600 bg-gray-50 hover:bg-orange-50 rounded-lg transition-colors cursor-pointer"
+                      title="Chỉnh sửa"
+                    >
+                      <nz-icon nzType="edit" nzTheme="outline" />
+                    </button>
+                    <button
+                      (click)="deleteSubmission(item._id)"
+                      class="p-2 text-gray-500 hover:text-red-600 bg-gray-50 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                      title="Xóa"
+                    >
+                      <nz-icon nzType="delete" nzTheme="outline" />
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </nz-spin>
+  </div>
+</div>
+
+<nz-modal
+  [(nzVisible)]="isFormVisible"
+  [nzTitle]="submitForm._id ? 'Cập nhật tài liệu' : 'Thêm tài liệu mới'"
+  (nzOnCancel)="isFormVisible = false"
+  [nzFooter]="null"
+  nzWidth="650px"
+  nzCentered
+>
+  <ng-container *nzModalContent>
+    <div class="flex flex-col gap-5">
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+          >Tiêu đề tài liệu <span class="text-red-500">*</span></label
+        >
+        <input
+          type="text"
+          [(ngModel)]="submitForm.title"
+          class="w-full border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+          placeholder="Nhập tiêu đề..."
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Tóm tắt (Abstract)</label>
+        <textarea
+          [(ngModel)]="submitForm.abstract"
+          rows="4"
+          class="w-full border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+          placeholder="Nhập tóm tắt nội dung..."
+        ></textarea>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+          >Đính kèm File (PDF/Word) <span class="text-red-500">*</span></label
+        >
+
+        <div class="flex items-center gap-4">
+          <button
+            class="relative bg-gray-50 hover:bg-gray-100 border border-gray-300 text-gray-700 px-4 py-2.5 rounded-lg font-medium text-sm transition-colors overflow-hidden cursor-pointer"
+          >
+            <span class="flex items-center gap-2">
+              @if (isUploading) {
+                <nz-icon nzType="loading" nzTheme="outline" /> Đang tải lên...
+              } @else {
+                <nz-icon nzType="upload" nzTheme="outline" /> Chọn File
+              }
+            </span>
+            <input
+              type="file"
+              accept=".pdf,.doc,.docx"
+              (change)="onFileSelected($event)"
+              [disabled]="isUploading"
+              class="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+            />
+          </button>
+
+          @if (submitForm.file_url) {
+            <a
+              [href]="submitForm.file_url"
+              target="_blank"
+              class="text-sm text-blue-600 hover:underline flex items-center gap-1 line-clamp-1 max-w-[250px]"
+              title="Xem file"
+            >
+              <nz-icon nzType="check-circle" nzTheme="fill" class="text-green-500" /> Đã tải lên
+              file
+            </a>
+          }
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 mt-4 pt-4 border-t border-gray-100">
+        <button
+          (click)="isFormVisible = false"
+          class="px-5 py-2.5 rounded-lg font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer"
+        >
+          Hủy bỏ
+        </button>
+        <button
+          (click)="saveSubmission()"
+          [disabled]="isSaving || isUploading"
+          class="px-5 py-2.5 rounded-lg font-medium text-white! bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors flex items-center gap-2 cursor-pointer shadow-sm"
+        >
+          @if (isSaving) {
+            <nz-icon nzType="loading" nzTheme="outline" />
+          }
+          {{ submitForm._id ? 'Cập nhật' : 'Nộp bài ngay' }}
+        </button>
+      </div>
+    </div>
+  </ng-container>
+</nz-modal>

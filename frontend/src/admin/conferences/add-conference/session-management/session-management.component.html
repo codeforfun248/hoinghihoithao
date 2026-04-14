@@ -1,0 +1,45 @@
+<div class="flex flex-col">
+  <div class="flex items-center justify-between mb-2">
+    <span class="font-semibold text-lg">Danh sách phiên</span>
+
+    <button nz-button nzType="primary" (click)="handleAddSession()">
+      <nz-icon nzType="plus"></nz-icon>
+      Thêm phiên
+    </button>
+  </div>
+
+  <nz-table
+    #basicTable
+    [nzData]="sessions"
+    [nzFrontPagination]="false"
+    [nzScroll]="{ x: '800px', y: `calc(100vh - var(--height-header) - 154px)` }"
+  >
+    <thead>
+      <tr>
+        <th nzWidth="100px">Tên phiên</th>
+        <th nzWidth="100px">Thời gian bắt đầu</th>
+        <th nzWidth="100px">Thời gian kết thúc</th>
+        <th nzWidth="50px">Thao tác</th>
+      </tr>
+    </thead>
+    <tbody cdkDropList (cdkDropListDropped)="drop($event)">
+      @for (data of sessions; track data._id) {
+        <tr cdkDrag>
+          <td>{{ data.name }}</td>
+          <td>{{ data.start_time | date: 'dd-MM-yyyy HH:mm:ss' }}</td>
+          <td>{{ data.end_time | date: 'dd-MM-yyyy HH:mm:ss' }}</td>
+          <td>
+            <a (click)="handleEditSession(data)">Chỉnh sửa</a>
+            <nz-divider nzType="vertical"></nz-divider>
+            <a
+              nz-popconfirm
+              nzPopconfirmTitle="Chắn chắn xóa phiên này?"
+              (nzOnConfirm)="handleDeleteSession(data._id)"
+              >Xóa</a
+            >
+          </td>
+        </tr>
+      }
+    </tbody>
+  </nz-table>
+</div>

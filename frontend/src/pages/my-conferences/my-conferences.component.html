@@ -1,0 +1,189 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Quản lý hội nghị của tôi</h1>
+    <p class="text-gray-500 mt-2">Xem lại các sự kiện bạn đã đăng ký tham gia hoặc tự tổ chức.</p>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-2 md:p-6">
+    <nz-tabset nzSize="large">
+      <nz-tab nzTitle="Hội nghị đã đăng ký tham gia">
+        <div class="pt-4">
+          <nz-spin [nzSpinning]="isLoadingJoined">
+            @if (joinedConferences.length === 0 && !isLoadingJoined) {
+              <div
+                class="text-center py-16 bg-gray-50 rounded-xl border border-dashed border-gray-200"
+              >
+                <nz-icon nzType="calendar" nzTheme="outline" class="text-5xl text-gray-300 mb-4" />
+                <h3 class="text-lg font-semibold text-gray-600">Bạn chưa tham gia hội nghị nào</h3>
+                <p class="text-gray-400 mt-2">
+                  Hãy tìm kiếm và đăng ký tham gia các sự kiện thú vị nhé!
+                </p>
+                <a
+                  routerLink="/"
+                  class="inline-block mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >Khám phá ngay</a
+                >
+              </div>
+            } @else {
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @for (item of joinedConferences; track item._id) {
+                  <div
+                    class="flex flex-col border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow group bg-white"
+                  >
+                    <div class="h-40 overflow-hidden relative">
+                      <img
+                        [src]="item.conference?.img || 'assets/images/default-conf.jpg'"
+                        alt="Cover"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div class="absolute top-3 right-3">
+                        <nz-tag
+                          [nzColor]="
+                            item.status === 'registered'
+                              ? 'blue'
+                              : item.status === 'checked_in'
+                                ? 'green'
+                                : 'red'
+                          "
+                          class="m-0! border-0 shadow-sm font-semibold"
+                        >
+                          {{
+                            item.status === 'registered'
+                              ? 'Đã đăng ký'
+                              : item.status === 'checked_in'
+                                ? 'Đã điểm danh'
+                                : 'Đã hủy'
+                          }}
+                        </nz-tag>
+                      </div>
+                    </div>
+                    <div class="p-5 flex-1 flex flex-col">
+                      <h3
+                        class="font-bold text-lg text-gray-900 line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors"
+                      >
+                        <a [routerLink]="['/conferences', item.conference?._id]">{{
+                          item.conference?.name || 'Hội nghị đã bị xóa'
+                        }}</a>
+                      </h3>
+                      <div class="text-sm text-gray-500 mb-2 flex items-center gap-2">
+                        <nz-icon nzType="clock-circle" nzTheme="outline" />
+                        {{ item.conference?.start_date | date: 'dd/MM/yyyy HH:mm' }}
+                      </div>
+                      <div class="text-sm text-gray-500 mb-4 flex items-start gap-2 line-clamp-1">
+                        <nz-icon nzType="environment" nzTheme="outline" class="mt-0.5" />
+                        {{ item.conference?.location }}
+                      </div>
+                      <div
+                        class="mt-auto pt-4 border-t border-gray-100 flex justify-between items-center"
+                      >
+                        <span class="text-xs text-gray-400"
+                          >Ngày ĐK: {{ item.createdAt | date: 'dd/MM/yyyy' }}</span
+                        >
+                        <a
+                          [routerLink]="['/conferences', item.conference?._id]"
+                          class="text-blue-600 text-sm font-semibold hover:underline"
+                          >Xem chi tiết</a
+                        >
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </nz-spin>
+        </div>
+      </nz-tab>
+
+      <nz-tab nzTitle="Hội nghị tôi đã tạo">
+        <div class="pt-4">
+          <nz-spin [nzSpinning]="isLoadingCreated">
+            @if (createdConferences.length === 0 && !isLoadingCreated) {
+              <div
+                class="text-center py-16 bg-gray-50 rounded-xl border border-dashed border-gray-200"
+              >
+                <nz-icon
+                  nzType="folder-add"
+                  nzTheme="outline"
+                  class="text-5xl text-gray-300 mb-4"
+                />
+                <h3 class="text-lg font-semibold text-gray-600">Bạn chưa tạo sự kiện nào</h3>
+              </div>
+            } @else {
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @for (item of createdConferences; track item._id) {
+                  <div
+                    class="flex flex-col border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow group bg-white"
+                  >
+                    <div class="p-5 flex-1 flex flex-col">
+                      <div class="relative h-40">
+                        <img
+                          [src]="item?.img || 'assets/images/default-conf.jpg'"
+                          alt="Cover"
+                          class="absolute top-0 left-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div
+                          class="absolute top-0 left-0 w-full p-4 flex justify-between items-start mb-3"
+                        >
+                          <span
+                            class="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded"
+                            >{{ item.type === 'event' ? 'Sự kiện' : 'Hội thảo' }}</span
+                          >
+                          <nz-tag
+                            [nzColor]="
+                              item.status === 'pending'
+                                ? 'orange'
+                                : item.status === 'confirmed'
+                                  ? 'green'
+                                  : 'red'
+                            "
+                            class="m-0! border-0"
+                          >
+                            {{
+                              item.status === 'pending'
+                                ? 'Chờ duyệt'
+                                : item.status === 'confirmed'
+                                  ? 'Đã duyệt'
+                                  : 'Đã hủy'
+                            }}
+                          </nz-tag>
+                        </div>
+                      </div>
+
+                      <h3
+                        class="font-bold text-lg text-gray-900 line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors"
+                      >
+                        <a [routerLink]="['/conferences', item._id]">{{ item.name }}</a>
+                      </h3>
+                      <div class="text-sm text-gray-500 mb-2 flex items-center gap-2">
+                        <nz-icon nzType="team" nzTheme="outline" />
+                        Người tham dự:
+                        <span class="font-semibold text-gray-800"
+                          >{{ item.current_participants || 0 }}/{{
+                            item.max_participants || 0
+                          }}</span
+                        >
+                      </div>
+
+                      <div class="mt-auto pt-4 border-t border-gray-100 flex justify-end gap-3">
+                        <a
+                          [routerLink]="['/conferences', item._id]"
+                          class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
+                          >Xem trang</a
+                        >
+                        <button
+                          class="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-sm font-medium transition-colors"
+                        >
+                          Quản lý
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </nz-spin>
+        </div>
+      </nz-tab>
+    </nz-tabset>
+  </div>
+</div>

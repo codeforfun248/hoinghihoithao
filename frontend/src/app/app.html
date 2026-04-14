@@ -1,0 +1,20 @@
+@if (apiService.loading) {
+  <div class="h-full w-full flex items-center justify-center">
+    <div class="spinner">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+  </div>
+} @else {
+  <router-outlet></router-outlet>
+}
+
+<!-- <router-outlet></router-outlet> -->

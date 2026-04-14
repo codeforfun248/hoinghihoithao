@@ -1,0 +1,33 @@
+<div class="min-h-screen bg-gray-100 flex justify-center items-center p-4">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-8">
+    <div class="text-center mb-8">
+      <h2 class="text-3xl font-bold text-blue-900">Admin Portal</h2>
+      <p class="text-gray-500 mt-2">Đăng nhập hệ thống quản lý</p>
+    </div>
+
+    <form nz-form [formGroup]="validateForm" class="login-form" (ngSubmit)="submitForm()">
+      <nz-form-item>
+        <nz-form-control nzErrorTip="Please input your email!">
+          <nz-input-wrapper>
+            <input type="text" nz-input formControlName="email" placeholder="email" />
+          </nz-input-wrapper>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-control nzErrorTip="Please input your Password!">
+          <nz-input-password>
+            <input nz-input formControlName="password" placeholder="Password" />
+          </nz-input-password>
+        </nz-form-control>
+      </nz-form-item>
+      <button
+        nz-button
+        class="login-form-button login-form-margin w-full"
+        [nzLoading]="isLoading"
+        [nzType]="'primary'"
+      >
+        Đăng nhập
+      </button>
+    </form>
+  </div>
+</div>

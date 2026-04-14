@@ -1,0 +1,48 @@
+<div
+  class="flex items-center gap-2 cursor-pointer hover:bg-gray-100 px-4 py-1 rounded w-fit h-fit"
+  nz-dropdown
+  [nzDropdownMenu]="menu"
+  nzPlacement="bottomRight"
+>
+  @if (authService.user) {
+    <nz-avatar nzIcon="user" [nzSrc]="authService.user?.avatar"></nz-avatar>
+  }
+
+  <span class="font-medium">
+    {{ authService.user.name }}
+  </span>
+  <span>
+    <nz-icon nzType="down" nzTheme="outline" />
+  </span>
+</div>
+
+<nz-dropdown-menu #menu="nzDropdownMenu">
+  <ul class="min-w-42 p-2 bg-white rounded shadow-lg flex flex-col gap-2">
+    <li class="px-2 py-1">
+      <div class="flex flex-col">
+        <span class="font-medium">{{ authService.user.name }}</span>
+        <span class="text-xs text-gray-400">{{ authService.user.email }}</span>
+      </div>
+    </li>
+    @if (authService.user.role == 'admin' || authService.user.role == 'organizer') {
+      <li class="w-full hover:bg-gray-100 px-2 py-1 cursor-pointer rounded-md" routerLink="/admin/">
+        <div class="flex items-center gap-2">
+          <nz-icon nzType="dashboard" nzTheme="outline" />
+          <span>Quản trị</span>
+        </div>
+      </li>
+    }
+    <li class="w-full hover:bg-gray-100 px-2 py-1 cursor-pointer rounded-md">
+      <div class="flex items-center gap-2" routerLink="/my-conferences">
+        <nz-icon nzType="calendar" nzTheme="outline" />
+        <span>Hội nghị của tôi</span>
+      </div>
+    </li>
+    <li class="w-full hover:bg-gray-100 px-2 py-1 cursor-pointer rounded-md">
+      <div class="flex items-center gap-2 text-red-500" (click)="handleLogout()">
+        <nz-icon nzType="upload" class="rotate-90" nzTheme="outline" />
+        <span>Đăng xuất</span>
+      </div>
+    </li>
+  </ul>
+</nz-dropdown-menu>

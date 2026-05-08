@@ -1,0 +1,260 @@
+<div class="add-category">
+  <form [formGroup]="form">
+    <div class="flex flex-wrap gap-4">
+      <div class="rounded-lg bg-white p-4 w-full">
+        <!-- hình ảnh -->
+        <div class="w-full text-center">
+          <nz-upload
+            class="avatar-uploader overflow-hidden"
+            nzName="avatar"
+            nzListType="picture-card"
+            [nzShowUploadList]="false"
+            [nzBeforeUpload]="beforeUpload"
+          >
+            @if (!form.value.img) {
+              <nz-icon class="upload-icon" [nzType]="uploading ? 'loading' : 'plus'" />
+              <div class="ant-upload-text">Upload</div>
+            } @else {
+              <img [src]="form.value.img" style="width: 100%" />
+            }
+          </nz-upload>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap md:flex-nowrap">
+          <div class="flex flex-col gap-2 mb-2 w-full">
+            <label for="name">
+              Tên Hội nghị/Hội thảo/Sự kiện
+              <i class="text-red-500">*</i>
+            </label>
+            <div class="flex items-center w-full gap-2">
+              <input nz-input id="name" type="text" formControlName="name" class="w-full" />
+            </div>
+          </div>
+          <div class="flex flex-col gap-2 mb-2 w-full">
+            <label for="type">
+              Thể loại
+              <i class="text-red-500">*</i>
+            </label>
+            <div class="flex items-center w-full gap-2">
+              <nz-select
+                id="type"
+                class="mb-2"
+                style="width: 100%"
+                formControlName="type"
+                nzShowSearch="true"
+                nzPlaceHolder="Chọn loại"
+              >
+                @for (item of typeOptions; track $index) {
+                  <nz-option nzCustomContent [nzValue]="item.value" [nzLabel]="item.label">
+                    {{ item.label }}
+                  </nz-option>
+                }
+              </nz-select>
+            </div>
+          </div>
+        </div>
+        <!-- khoa viện -->
+        <div class="flex flex-col gap-2 rounded-md bg-white mb-4 w-full h-fit">
+          <label for="faculty">
+            Khoa/Viện
+            <i class="text-red-500">*</i>
+          </label>
+          <div class="flex items-center w-full gap-2">
+            <nz-select
+              id="faculty"
+              class="mb-2"
+              style="width: 100%"
+              formControlName="faculty"
+              nzShowSearch="true"
+              nzPlaceHolder="Chọn Khoa/Viện"
+            >
+              @for (item of faculties; track $index) {
+                <nz-option nzCustomContent [nzValue]="item._id" [nzLabel]="item.name">
+                  {{ item.name }}
+                </nz-option>
+              }
+            </nz-select>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-lg bg-white p-4 w-full">
+        <div class="flex w-full xs:flex-wrap items-center gap-4">
+          <div class="flex flex-col gap-2 rounded-md bg-white mb-4 w-full h-fit">
+            <label for="start_date">
+              Thời gian bắt đầu
+              <i class="text-red-500">*</i>
+            </label>
+
+            <div class="flex items-center w-full gap-2">
+              <nz-date-picker
+                nzShowTime
+                formControlName="start_date"
+                id="start_date"
+                nzFormat="dd-MM-yyyy HH:mm:ss"
+                class="w-full"
+              ></nz-date-picker>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2 rounded-md bg-white mb-4 w-full h-fit">
+            <label for="end_date">
+              Thời gian kết thúc
+              <i class="text-red-500">*</i>
+            </label>
+            <div class="flex items-center w-full gap-2">
+              <nz-date-picker
+                nzShowTime
+                formControlName="end_date"
+                id="end_date"
+                nzFormat="dd-MM-yyyy HH:mm:ss"
+                class="w-full"
+              ></nz-date-picker>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex w-full xs:flex-wrap items-center gap-4">
+          <div class="flex flex-col gap-2 rounded-md bg-white mb-4 w-full h-fit">
+            <label for="registration_deadline">
+              Hạn đăng ký
+              <i class="text-red-500">*</i>
+            </label>
+            <div class="flex items-center w-full gap-2">
+              <nz-date-picker
+                nzShowTime
+                id="registration_deadline"
+                formControlName="registration_deadline"
+                nzFormat="dd-MM-yyyy HH:mm:ss"
+                class="w-full"
+              ></nz-date-picker>
+            </div>
+          </div>
+
+          @if (form.value.type == 'conference') {
+            <div class="flex flex-col gap-2 rounded-md bg-white mb-4 w-full h-fit">
+              <label for="submission_deadline">
+                Hạn nộp bài
+                <i class="text-red-500">*</i>
+              </label>
+              <div class="flex items-center w-full gap-2">
+                <nz-date-picker
+                  nzShowTime
+                  formControlName="submission_deadline"
+                  id="submission_deadline"
+                  nzFormat="dd-MM-yyyy HH:mm:ss"
+                  class="w-full"
+                ></nz-date-picker>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="flex w-full xs:flex-wrap items-center gap-4">
+          <div class="flex flex-col gap-2 rounded-md bg-white mb-4 w-full h-fit">
+            <label for="max_participants">
+              Số người tối đa
+              <i class="text-red-500">*</i>
+            </label>
+            <div class="flex items-center w-full gap-2">
+              <input
+                nz-input
+                id="max_participants"
+                type="number"
+                formControlName="max_participants"
+                class="w-full"
+              />
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-2 mb-2 w-full">
+            <label for="location"> Địa điểm </label>
+            <div class="flex items-center w-full gap-2">
+              <input nz-input id="location" type="text" formControlName="location" class="w-full" />
+            </div>
+          </div>
+        </div>
+
+        <div class="flex w-full xs:flex-wrap items-center gap-4">
+          <div class="flex flex-col gap-2 rounded-md bg-white mb-4 w-full h-fit">
+            <label for="map"> Google Map </label>
+            <div class="flex items-center w-full gap-2">
+              <input nz-input id="map" type="text" formControlName="map" class="w-full" />
+            </div>
+          </div>
+        </div>
+
+        <div class="flex w-full xs:flex-wrap items-center gap-4">
+          <div class="flex flex-col gap-2 rounded-md bg-white mb-4 w-full h-fit">
+            <label for="desc"> Mô tả </label>
+            <div class="flex items-center w-full gap-2">
+              <textarea
+                id="desc"
+                formControlName="desc"
+                class="w-full"
+                rows="4"
+                nz-input
+              ></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="rounded-lg bg-white p-4 w-full">
+        <nz-tabs>
+          <!-- Tab Phiên (Sessions) -->
+          <nz-tab [nzTitle]="'Phiên'">
+            <app-session-management
+              [sessions]="sessions"
+              (changeSession)="onChangeSession($event)"
+            ></app-session-management>
+          </nz-tab>
+
+          <!-- Tab Diễn giả -->
+          <nz-tab [nzTitle]="'Diễn giả'">
+            <app-speaker-management
+              [speakers]="speakers"
+              (changeSpeaker)="onChangeSpeakers($event)"
+            ></app-speaker-management>
+          </nz-tab>
+
+          <!-- Tab Ban tổ chức -->
+          <nz-tab [nzTitle]="'Ban tổ chức'">
+            <app-committees-management
+              [committees]="committees"
+              (changeOrganizingCommittee)="onChangeOrganizingCommittee($event)"
+            ></app-committees-management>
+          </nz-tab>
+
+          <!-- Tab Nhà tài trợ -->
+          <nz-tab [nzTitle]="'Nhà tài trợ'">
+            <app-sponsor-management
+              [sponsors]="sponsors"
+              (changeSponsor)="onChangeSponsor($event)"
+            ></app-sponsor-management>
+          </nz-tab>
+
+          <!-- Tab Tài liệu -->
+          <nz-tab [nzTitle]="'Tài liệu'">
+            <app-document-management
+              [documents]="documents"
+              (changeDocuments)="onChangeDocuments($event)"
+            ></app-document-management>
+          </nz-tab>
+        </nz-tabs>
+      </div>
+
+      <div class="rounded-lg bg-white p-4 w-full">
+        <div class="flex flex-col gap-2 mb-2 w-full">
+          <label for="desc_detail"> Mô tả chi tiết </label>
+          <div class="flex items-center w-full gap-2">
+            <ckeditor
+              formControlName="desc_detail"
+              id="desc_detail"
+              [editor]="Editor"
+              [config]="config"
+            ></ckeditor>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

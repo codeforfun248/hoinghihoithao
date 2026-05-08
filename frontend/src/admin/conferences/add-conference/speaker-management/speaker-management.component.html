@@ -1,0 +1,40 @@
+<div class="flex flex-col">
+  <div class="flex items-center justify-between mb-2">
+    <span class="font-semibold text-lg">Danh sách diễn giả</span>
+
+    <button nz-button nzType="primary" (click)="handleAddSpeaker()">
+      <nz-icon nzType="plus"></nz-icon>
+      Thêm diễn giả
+    </button>
+  </div>
+
+  <nz-table #nzTable [nzData]="speakers" [nzFrontPagination]="false" [nzScroll]="{ x: '800px' }">
+    <thead>
+      <tr>
+        <th nzWidth="100px">Vị trí</th>
+        <th nzWidth="100px">Học vị</th>
+        <th nzWidth="100px">Tên</th>
+        <th nzWidth="100px">Email</th>
+        <th nzWidth="100px">Thao tác</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (data of nzTable.data; track data) {
+        <tr>
+          <td>{{ data.position }}</td>
+          <td>{{ data.user?.academic_degree || data.academic_degree }}</td>
+          <td>{{ data.user?.name || data.name }}</td>
+          <td>{{ data.user?.email || data.email }}</td>
+          <td>
+            <a
+              nz-popconfirm
+              nzPopconfirmTitle="Chắn chắn xóa thành viên này?"
+              (nzOnConfirm)="handleDeleteSpeaker(data)"
+              >Xóa</a
+            >
+          </td>
+        </tr>
+      }
+    </tbody>
+  </nz-table>
+</div>

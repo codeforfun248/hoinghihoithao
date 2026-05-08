@@ -1,0 +1,44 @@
+<div class="flex flex-col">
+  <div class="flex items-center justify-between mb-2">
+    <span class="font-semibold text-lg">Danh sách ban tổ chức</span>
+
+    <button nz-button nzType="primary" (click)="handleAddOC()">
+      <nz-icon nzType="plus"></nz-icon>
+      Thêm ban tổ chức
+    </button>
+  </div>
+
+  <nz-table #basicTable [nzData]="committees" [nzFrontPagination]="false">
+    <thead>
+      <tr>
+        <th nzWidth="60px"></th>
+        <th>Tên ban tổ chức</th>
+        <th nzWidth="100px">Thao tác</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (data of basicTable.data; track data) {
+        <tr>
+          <td
+            [nzExpand]="expandSet.has(data._id)"
+            (nzExpandChange)="onExpandChange(data._id, $event)"
+          ></td>
+          <td (click)="handleEdit(data)">{{ data.name }}</td>
+          <td nzWidth="100px">
+            <a
+              nz-popconfirm
+              nzPopconfirmTitle="Chắn chắn xóa ban này?"
+              (nzOnConfirm)="handleDeleteCommittee(data._id)"
+              >Xóa</a
+            >
+          </td>
+        </tr>
+        <tr [nzExpand]="expandSet.has(data._id)">
+          @for (item of data.members; track $index) {
+            <div class="ml-16">{{ item.position }}: {{ item.user?.academic_degree || item.academic_degree }} {{ item.user?.name || item.name }}</div>
+          }
+        </tr>
+      }
+    </tbody>
+  </nz-table>
+</div>

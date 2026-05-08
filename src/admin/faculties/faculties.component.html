@@ -1,0 +1,82 @@
+<div class="w-full h-full rounded-lg">
+  <div class="flex items-center justify-between w-full mb-4 gap-2">
+    <div class="flex items-center gap-2">
+      <button class="ml-2 rounded-md" nz-button nzType="primary" (click)="addFaculty()">
+        <nz-icon nzType="plus" nzTheme="outline" />
+      </button>
+      <button class="ml-2 rounded-md" nz-button nzType="default" (click)="getFaculties()">
+        <nz-icon nzType="reload" nzTheme="outline" />
+      </button>
+
+      <button
+        class="ml-2 rounded-md"
+        nz-button
+        nzType="default"
+        nz-dropdown
+        [nzDropdownMenu]="menu"
+      >
+        Thao tác
+        <nz-icon nzType="down" />
+      </button>
+      <nz-dropdown-menu #menu="nzDropdownMenu">
+        <ul nz-menu nzSelectable>
+          <li nz-menu-item nzDanger (click)="handleDelete()">
+            <nz-icon nzType="delete" nzTheme="outline" />
+            Xóa
+          </li>
+        </ul>
+      </nz-dropdown-menu>
+    </div>
+
+    <nz-input-wrapper class="md:max-w-75 w-full">
+      <nz-icon nzInputPrefix nzType="search" (click)="onSearch()" />
+      <input
+        type="text"
+        [(ngModel)]="keySearch"
+        nz-input
+        placeholder="Tìm kiếm"
+        (keyup.enter)="onSearch()"
+      />
+    </nz-input-wrapper>
+  </div>
+
+  <nz-table
+    #rowSelectionTable
+    nzShowSizeChanger
+    [nzData]="faculties"
+    (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
+    [nzScroll]="{ y: `calc(100vh - var(--height-header) - 154px)` }"
+    [nzPageSize]="pageSize"
+    [nzPageIndex]="pageIndex"
+    [nzTotal]="total"
+    [nzFrontPagination]="keySearch.length ? true : false"
+    [nzLoading]="loading"
+    (nzQueryParams)="onQueryParamsChange($event)"
+    nzSize="small"
+    class="wb-table"
+  >
+    <thead>
+      <tr>
+        <th
+          nzWidth="60px"
+          [(nzChecked)]="checked"
+          [nzIndeterminate]="indeterminate"
+          (nzCheckedChange)="onAllChecked($event)"
+        ></th>
+        <th nzColumnKey="name" [nzSortFn]="!keySearch ? true : handleSortLocal">Tên</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (data of rowSelectionTable.data; track data._id) {
+        <tr (click)="handleEdit(data)">
+          <td
+            [nzChecked]="setOfCheckedId.has(data._id)"
+            (nzCheckedChange)="onItemChecked(data._id, $event)"
+          ></td>
+
+          <td>{{ data.name }}</td>
+        </tr>
+      }
+    </tbody>
+  </nz-table>
+</div>

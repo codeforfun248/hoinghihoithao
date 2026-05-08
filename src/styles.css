@@ -1,0 +1,147 @@
+@import '../node_modules/ng-zorro-antd/ng-zorro-antd.css';
+@import 'ckeditor5/ckeditor5.css';
+@import 'tailwindcss';
+
+:root {
+  --height-header: 60px;
+  --bg-color-modal: #f1f1f1f1;
+}
+
+.ant-btn {
+  border-radius: 0.375rem;
+}
+
+.scrollbar-thin {
+  &::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+}
+
+.wb-table {
+  height: calc(100vh - var(--height-header) - 119px);
+
+  .ant-spin-nested-loading {
+    height: 100%;
+
+    .ant-spin-container {
+      height: 100%;
+
+      .ant-table {
+        height: 100%;
+      }
+    }
+  }
+}
+
+.modal-admin {
+  top: 24px;
+
+  .ant-modal-content {
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+
+  .ant-modal-body {
+    max-height: calc(100vh - 160px);
+    overflow: auto;
+    background-color: #f1f2f3f4;
+    padding: 1rem;
+
+    &::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: rgba(0, 0, 0, 0.2);
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+.ck-editor__editable_inline {
+  min-height: 600px;
+  /* chiều cao tối thiểu */
+  max-height: 600px;
+  /* chiều cao tối đa */
+  overflow-y: auto;
+  /* có thanh cuộn khi vượt quá */
+
+  &::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+}
+
+.ant-table-content,
+.ant-table-body {
+  &::-webkit-scrollbar {
+    width: 4px !important;
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+}
+
+.ant-input-affix-wrapper,
+.ant-input,
+.ant-select-selector,
+.ant-btn:not(.ant-btn-round) {
+  border-radius: 0.375rem !important;
+}
+
+@media (max-width: 400px) {
+  /* Ép mảng lịch và mảng giờ xếp dọc thay vì xếp ngang */
+  .ant-picker-datetime-panel {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Thu gọn kích thước vừa màn hình */
+  .ant-picker-panel-container {
+    max-width: 360px !important;
+    overflow: hidden;
+  }
+
+  /* Chỉnh lại border cho đẹp khi xếp dọc */
+  .ant-picker-time-panel {
+    border-left: none !important;
+    border-top: 1px solid #f0f0f0;
+  }
+}
+
+.ant-table-header {
+  .ant-table-cell-fix-right-first.ant-table-cell.ant-table-cell-fix-right {
+    right: -11px !important;
+  }
+}

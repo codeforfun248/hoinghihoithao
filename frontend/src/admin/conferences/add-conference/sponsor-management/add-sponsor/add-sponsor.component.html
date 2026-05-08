@@ -1,0 +1,44 @@
+<form [formGroup]="form">
+  <div class="rounded-lg bg-white p-4 w-full">
+    <div class="flex flex-col gap-2 mb-2 w-full">
+      <label for="name">
+        Tên nhà tài trợ
+        <i class="text-red-500">*</i>
+      </label>
+      <div class="flex items-center w-full gap-2">
+        <input nz-input id="name" type="text" formControlName="name" class="w-full" />
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-2 mb-2 w-full">
+      <label for="logo"> Logo </label>
+      <div class="flex items-center w-full gap-2">
+        <nz-upload
+          [(nzFileList)]="fileList"
+          [nzLimit]="1"
+          [nzBeforeUpload]="beforeUpload"
+          style="width: 100%"
+        >
+          <button nz-button class="w-full">
+            <nz-icon nzType="upload" />
+            Click to Upload
+          </button>
+        </nz-upload>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-2 mb-2 w-full">
+      <label for="link"> Đường dẫn website </label>
+      <div class="flex items-center w-full gap-2">
+        <input
+          nz-input
+          id="link"
+          type="text"
+          formControlName="link"
+          class="w-full"
+          placeholder="https://..."
+        />
+      </div>
+    </div>
+  </div>
+</form>

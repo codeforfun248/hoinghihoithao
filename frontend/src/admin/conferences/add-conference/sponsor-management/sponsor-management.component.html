@@ -1,0 +1,46 @@
+<div class="flex flex-col">
+  <div class="flex items-center justify-between mb-2">
+    <span class="font-semibold text-lg">Nhà tài trợ</span>
+
+    <button nz-button nzType="primary" (click)="handleAddSponsor()">
+      <nz-icon nzType="plus"></nz-icon>
+      Thêm nhà tài trợ
+    </button>
+  </div>
+
+  <nz-table #nzTable [nzData]="sponsors" [nzFrontPagination]="false" [nzScroll]="{ x: '800px' }">
+    <thead>
+      <tr>
+        <th nzWidth="150px">Tên</th>
+        <th nzWidth="150px">Logo</th>
+        <th nzWidth="150px">Link</th>
+        <th nzWidth="80px">Thao tác</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (data of nzTable.data; track data) {
+        <tr>
+          <td nzWidth="150px" (click)="handleEditSponsor(data)">{{ data.name }}</td>
+          <td nzWidth="150px">
+            @if (data.logo) {
+              <img [src]="data.logo" style="max-width: 100px; max-height: 50px" />
+            }
+          </td>
+          <td nzWidth="150px">
+            @if (data.link) {
+              <a [href]="data.link" target="_blank">{{ data.link }}</a>
+            }
+          </td>
+          <td nzWidth="80px">
+            <a
+              nz-popconfirm
+              nzPopconfirmTitle="Chắc chắn xóa nhà tài trợ này?"
+              (nzOnConfirm)="handleDeleteSponsor(data)"
+              >Xóa</a
+            >
+          </td>
+        </tr>
+      }
+    </tbody>
+  </nz-table>
+</div>

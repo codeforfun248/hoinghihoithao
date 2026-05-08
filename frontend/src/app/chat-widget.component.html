@@ -1,0 +1,45 @@
+<div class="chat-bubble-launcher" (click)="toggleChat()" *ngIf="isBubbleOpen">
+  <span class="sparkle-icon">✨</span> 
+</div>
+
+<div class="chat-widget-container" *ngIf="isChatOpen">
+  
+  <div class="chat-header">
+    <div class="header-left">
+      <div class="icon-circle">✨</div>
+      <div class="title-group">
+        <div class="main-title">TDMU AI Assistant</div>
+        <div class="sub-title">🟢 Cố vấn học tập AI</div>
+      </div>
+    </div>
+    <div class="close-btn" (click)="toggleChat()">✕</div>
+  </div>
+
+  <div class="chat-body" #chatBody>
+    <div *ngFor="let msg of messages" [ngClass]="{'msg-user': msg.role === 'user', 'msg-ai': msg.role === 'ai'}">
+      <div class="msg-content">
+        <p>{{ msg.text }}</p>
+      </div>
+      <div class="msg-meta">
+        {{ msg.role === 'ai' ? 'Hệ thống Ai' : 'Bạn' }} • {{ msg.time }}
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-footer">
+    <div class="input-group">
+      <span class="sparkle-icon-input">✨</span>
+      <input type="text" 
+             [value]="userInputValue"
+             (input)="updateInputValue($event)"
+             placeholder="Hỏi tôi về nghiên cứu..." 
+             (keyup.enter)="sendMessage()">
+      <button class="send-btn" (click)="sendMessage()">
+        <span class="send-icon">➤</span>
+      </button>
+    </div>
+    <div class="footer-disclaimer">
+      Công nghệ AI có thể tạo ra thông tin không chính xác. Hãy đối chiếu với dữ liệu chính thống.
+    </div>
+  </div>
+</div>

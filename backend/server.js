@@ -1,21 +1,16 @@
 import express from "express";
 import connectDB from "./config/db.js";
 import dotenv from "dotenv";
-import CorsConfig from "./config/cors.js";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import compression from "compression";
-import helmet from "helmet";
-import v1Router from "./routes/index.route.js";
-import errorHandler from "./middlewares/error-handler.middleware.js";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
-//import "./utils/telegramBot.js";
-import "./utils/cronJobs.js";
-import Groq from "groq-sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai"; // Import thư viện Google mới
+import v1Router from "./routes/index.route.js";
+import errorHandler from "./middlewares/error-handler.middleware.js";
 
-// Tạo lại biến __dirname cho môi trường ES Module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -24,65 +19,71 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Khởi tạo Groq AI
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+// ==========================================
+// CẤU HÌNH GOOGLE AI (GEMMA 2)
+// ==========================================
+// Bạn có thể để Key trong .env hoặc dán trực tiếp vào đây để test nhanh
+//const genAI = new GoogleGenerativeAI("AIzaSyCJ1XVDjo0OUsCuNdyfHC3vOd5dA1OUm44"); // <--- Thay bằng Google API Key của bạn
 
 // Middlewares
 app.use(cors({ origin: 'http://localhost:4200' }));
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
 app.use(morgan("dev"));
-app.use(compression()); 
+app.use(compression());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ==========================================
-// 1. API CHAT AI (SỬ DỤNG GEMMA 2 & TIẾNG VIỆT)
+// API CHAT AI (SỬ DỤNG GEMMA 2 CHÍNH CHỦ)
 // ==========================================
 app.post("/api/v1/chat-ai", async (req, res) => {
   try {
     const { message } = req.body;
     if (!message) return res.json({ reply: "Nội dung trống" });
 
-    const chatCompletion = await groq.chat.completions.create({
-      messages: [
-        { 
-          role: "system", 
-          content: "Bạn là một trợ lý ảo hữu ích. Bạn CHỈ được phép trả lời bằng tiếng Việt chân thực và tự nhiên." 
-        },
-        { role: "user", content: message }
-      ],
-      // Đã cập nhật sang model Gemma 2 theo ý bạn
-     model: "llama-3.1-8b-instant",
+    const API_KEY = "GEMINI_API_KEY"; // Đảm bảo key này bạn vừa lấy từ Google AI Studio
+
+    // URL này sử dụng model định danh chính xác nhất hiện nay
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${API_KEY}`;
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [{ text: `Bạn là trợ lý ảo chuyên nghiệp. Hãy trả lời bằng tiếng Việt: ${message}` }]
+          }
+        ]
+      })
     });
 
-    const text = chatCompletion.choices[0]?.message?.content || "";
-    res.json({ reply: text });
+    const data = await response.json();
 
+    if (data.candidates && data.candidates[0].content.parts[0].text) {
+      res.json({ reply: data.candidates[0].content.parts[0].text });
+    } else {
+      // Nếu vẫn lỗi, đoạn này sẽ in ra để ta biết chính xác Google muốn gì
+      console.log("Cấu trúc phản hồi đầy đủ:", JSON.stringify(data, null, 2));
+      res.json({ reply: "AI đang bảo trì hệ thống, thử lại sau nhé!" });
+    }
   } catch (error) {
-    console.error("Lỗi AI Chi tiết:", error);
-    res.json({ reply: "Gemma đang bận một chút, bạn thử lại nhé!" });
+    console.error("Lỗi:", error);
+    res.json({ reply: "Không thể kết nối với trí tuệ nhân tạo." });
   }
 });
 
-// ==========================================
-// 2. CÁC ROUTER CHÍNH CỦA HỆ THỐNG
-// ==========================================
 app.get("/api/v1", async (req, res) => {
   res.send({ message: "API is running" });
 });
 
-// Routes v1
 app.use("/api/v1", v1Router);
-
-// Error handler LUÔN LUÔN PHẢI ĐẶT CUỐI CÙNG
 app.use(errorHandler);
 
 const startServer = async () => {
   await connectDB();
   app.listen(PORT, () => {
-    console.log(`🚀 Server is running on port ${PORT}`);
-    console.log(`🤖 AI Model: Gemma 2 is ready!`);
+    console.log(`🚀 Server đang chạy tại cổng ${PORT}`);
+    console.log(`🤖 Đang sử dụng Gemma 2 chính chủ từ Google`);
   });
 };
 

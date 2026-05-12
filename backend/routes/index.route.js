@@ -6,6 +6,7 @@ import uploadRoute from "./upload.route.js";
 import conferenceRoute from "./conference.route.js";
 import submissionsRoute from "./submissions.route.js";
 import registrationsRoute from "./registration.route.js";
+import aiRoute from "./ai.route.js";
 
 router.use("/auth", authRoute);
 router.use("/admin", adminRoute);
@@ -14,5 +15,6 @@ router.use("/upload", uploadRoute);
 router.use("/conferences", conferenceRoute);
 router.use("/submissions", submissionsRoute);
 router.use("/registrations", registrationsRoute);
+router.use("/chat-ai", aiRoute);
 
 export default router;

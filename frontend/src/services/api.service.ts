@@ -443,4 +443,13 @@ export class ApiService {
       ).catch((error) => reject(error));
     });
   }
+
+  // ================= API AI =================
+  askAI(message: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      lastValueFrom(
+        this.http.post<any>(`${this.urlBE}/chat-ai`, { message }).pipe(tap((res) => resolve(res))),
+      ).catch((error) => reject(error));
+    });
+  }
 }

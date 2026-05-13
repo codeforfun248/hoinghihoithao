@@ -9,6 +9,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
+import { filter, take } from 'rxjs/operators';
 import { ChatService } from '../../services/chat.service';
 import { AuthService } from '../../services/auth.service';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
@@ -148,6 +149,9 @@ export class AdminChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (!content && !this.pendingImageUrl) return;
     if (!this.selectedConv) return;
 
+    const imageUrl = this.pendingImageUrl;
+    const convUserId = this.selectedConv.userId;
+
     // Optimistic update
     const tempMsg = {
       _tempId: Date.now().toString(),
@@ -156,20 +160,31 @@ export class AdminChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         name: this.authService.user?.name,
         avatar: this.authService.user?.avatar,
       },
-      conversationUserId: this.selectedConv.userId,
-      content: content,
-      imageUrl: this.pendingImageUrl,
+      conversationUserId: convUserId,
+      content,
+      imageUrl,
       createdAt: new Date().toISOString(),
       isDeleted: false,
       isEdited: false,
     };
     this.messages.push(tempMsg);
     this.shouldScroll = true;
-
-    this.chatService.sendMessage(content, this.pendingImageUrl, this.selectedConv.userId);
     this.inputValue = '';
     this.pendingImageUrl = null;
     this.previewImageUrl = null;
+
+    if (this.chatService.isConnected()) {
+      this.chatService.sendMessage(content, imageUrl, convUserId);
+    } else {
+      const sub = this.chatService.connected$.pipe(
+        filter((v) => v === true),
+        take(1),
+      ).subscribe(() => {
+        this.chatService.sendMessage(content, imageUrl, convUserId);
+        sub.unsubscribe();
+      });
+      setTimeout(() => sub.unsubscribe(), 5000);
+    }
   }
 
   onKeydown(event: KeyboardEvent) {

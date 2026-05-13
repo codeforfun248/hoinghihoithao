@@ -9,6 +9,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
+import { filter, take } from 'rxjs/operators';
 import { ChatService } from '../../services/chat.service';
 import { AuthService } from '../../services/auth.service';
 
@@ -73,26 +74,33 @@ export class CskhWidgetComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   private initChat() {
-    // Cleanup chat cũ trước
+    // Cleanup subscription cũ
     this.chatSubs.unsubscribe();
     this.chatSubs = new Subscription();
     this.chatInitialized = false;
     this.messages = [];
+    this.connectionStatus = 'connecting';
 
+    // Kết nối socket
     this.chatService.connect();
-    this.loadHistory();
+
+    // Subscribe events
     this.subscribeToChatEvents();
     this.chatInitialized = true;
 
+    // Theo dõi trạng thái kết nối
     this.chatSubs.add(
       this.chatService.connected$.subscribe((connected) => {
         this.connectionStatus = connected ? 'connected' : 'disconnected';
+        // Khi kết nối thành công thì load lịch sử
+        if (connected) {
+          this.loadHistory();
+        }
       }),
     );
   }
 
   private resetChat() {
-    // Đóng widget, xóa tin nhắn, ngắt socket
     this.isOpen = false;
     this.messages = [];
     this.inputValue = '';
@@ -111,10 +119,13 @@ export class CskhWidgetComponent implements OnInit, OnDestroy, AfterViewChecked 
     this.chatSubs.add(
       this.chatService.newMessage$.subscribe((msg) => {
         const myId = this.myId;
+        if (!myId) return;
+
+        // Nhận tin nếu conversation thuộc về mình
         if (msg.conversationUserId === myId || msg.sender?._id === myId) {
           const exists = this.messages.some((m) => m._id === msg._id);
           if (!exists) {
-            // Xóa tin nhắn optimistic (temp) rồi push tin thật
+            // Xóa temp message rồi push tin thật
             this.messages = this.messages.filter((m) => !m._tempId);
             this.messages.push(msg);
             this.shouldScroll = true;
@@ -173,7 +184,9 @@ export class CskhWidgetComponent implements OnInit, OnDestroy, AfterViewChecked 
     const content = this.inputValue.trim();
     if (!content && !this.pendingImageUrl) return;
 
-    // Optimistic update — hiện tin ngay
+    const imageUrl = this.pendingImageUrl;
+
+    // Optimistic update — hiện tin ngay lập tức
     const tempMsg = {
       _tempId: Date.now().toString(),
       sender: {
@@ -183,7 +196,7 @@ export class CskhWidgetComponent implements OnInit, OnDestroy, AfterViewChecked 
       },
       conversationUserId: this.myId,
       content,
-      imageUrl: this.pendingImageUrl,
+      imageUrl,
       createdAt: new Date().toISOString(),
       isDeleted: false,
       isEdited: false,
@@ -191,11 +204,30 @@ export class CskhWidgetComponent implements OnInit, OnDestroy, AfterViewChecked 
 
     this.messages.push(tempMsg);
     this.shouldScroll = true;
-
-    this.chatService.sendMessage(content, this.pendingImageUrl);
     this.inputValue = '';
     this.pendingImageUrl = null;
     this.previewImageUrl = null;
+
+    // Nếu socket đã connected thì gửi ngay
+    if (this.chatService.isConnected()) {
+      this.chatService.sendMessage(content, imageUrl);
+    } else {
+      // Chờ connected rồi gửi (tối đa 5 giây)
+      console.log('[CSKH] Socket not connected, waiting...');
+      const sub = this.chatService.connected$.pipe(
+        filter((v) => v === true),
+        take(1),
+      ).subscribe(() => {
+        console.log('[CSKH] Socket connected, sending now');
+        this.chatService.sendMessage(content, imageUrl);
+        sub.unsubscribe();
+      });
+
+      // Timeout 5s nếu không kết nối được
+      setTimeout(() => {
+        sub.unsubscribe();
+      }, 5000);
+    }
   }
 
   onKeydown(event: KeyboardEvent) {

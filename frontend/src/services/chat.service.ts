@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { io, Socket } from 'socket.io-client';
-import { Subject, BehaviorSubject, ReplaySubject } from 'rxjs';
+import { Subject, BehaviorSubject } from 'rxjs';
 import { environment } from '../environments/environment';
 import { lastValueFrom } from 'rxjs';
 
@@ -11,8 +11,8 @@ export class ChatService implements OnDestroy {
   private urlBE = environment.apiUrl;
   private apiUrl = `${environment.apiUrl}/api/v1/chat`;
 
-  // ReplaySubject(1) giữ lại event cuối cùng cho subscriber mới
-  newMessage$ = new ReplaySubject<any>(10);
+  // Subject thường — không replay, không giữ giá trị cũ
+  newMessage$ = new Subject<any>();
   messageDeleted$ = new Subject<{ messageId: string }>();
   messageEdited$ = new Subject<any>();
   connected$ = new BehaviorSubject<boolean>(false);
@@ -20,30 +20,36 @@ export class ChatService implements OnDestroy {
   constructor(private http: HttpClient) {}
 
   connect() {
-    // Nếu đã có socket và đang connected thì không tạo mới
-    if (this.socket?.connected) return;
-
-    // Nếu socket tồn tại nhưng bị disconnect thì reconnect
-    if (this.socket) {
-      this.socket.connect();
+    // Đã connected rồi thì thôi
+    if (this.socket?.connected) {
+      console.log('[Socket] Already connected');
       return;
     }
+
+    // Có socket cũ bị disconnect → destroy hẳn, tạo mới
+    if (this.socket) {
+      this.socket.removeAllListeners();
+      this.socket.disconnect();
+      this.socket = null;
+    }
+
+    console.log('[Socket] Creating new connection...');
 
     this.socket = io(this.urlBE, {
       withCredentials: true,
       transports: ['websocket', 'polling'],
       reconnection: true,
-      reconnectionAttempts: 5,
+      reconnectionAttempts: 10,
       reconnectionDelay: 1000,
     });
 
     this.socket.on('connect', () => {
-      console.log('[Socket] Connected:', this.socket?.id);
+      console.log('[Socket] ✅ Connected:', this.socket?.id);
       this.connected$.next(true);
     });
 
     this.socket.on('disconnect', (reason) => {
-      console.log('[Socket] Disconnected:', reason);
+      console.log('[Socket] ❌ Disconnected:', reason);
       this.connected$.next(false);
     });
 
@@ -52,7 +58,7 @@ export class ChatService implements OnDestroy {
     });
 
     this.socket.on('new_message', (msg: any) => {
-      console.log('[Socket] new_message received:', msg);
+      console.log('[Socket] 📨 new_message:', msg);
       this.newMessage$.next(msg);
     });
 
@@ -66,19 +72,24 @@ export class ChatService implements OnDestroy {
   }
 
   disconnect() {
-    this.socket?.disconnect();
-    this.socket = null;
+    if (this.socket) {
+      console.log('[Socket] Disconnecting...');
+      this.socket.removeAllListeners();
+      this.socket.disconnect();
+      this.socket = null;
+    }
     this.connected$.next(false);
   }
 
   // ─── Emit events ────────────────────────────────────────────────────────────
   sendMessage(content: string, imageUrl: string | null = null, conversationUserId?: string) {
     if (!this.socket?.connected) {
-      console.warn('[Socket] Not connected, cannot send message');
+      console.warn('[Socket] ⚠️ Not connected! socket:', this.socket, 'connected:', this.socket?.connected);
       return;
     }
-    console.log('[Socket] Emitting send_message:', { content, imageUrl, conversationUserId });
-    this.socket.emit('send_message', { content, imageUrl, conversationUserId });
+    const payload = { content, imageUrl, conversationUserId };
+    console.log('[Socket] 📤 Emitting send_message:', payload);
+    this.socket.emit('send_message', payload);
   }
 
   deleteMessage(messageId: string, conversationUserId: string) {
@@ -109,7 +120,6 @@ export class ChatService implements OnDestroy {
   uploadChatImage(file: File) {
     const formData = new FormData();
     formData.append('file', file);
-    // Dùng endpoint riêng cho chat, không cần truyền folder
     return lastValueFrom(this.http.post<any>(`${this.apiUrl}/upload-image`, formData));
   }
 

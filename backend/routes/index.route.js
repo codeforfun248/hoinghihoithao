@@ -7,6 +7,7 @@ import conferenceRoute from "./conference.route.js";
 import submissionsRoute from "./submissions.route.js";
 import registrationsRoute from "./registration.route.js";
 import aiRoute from "./ai.route.js";
+import chatRoute from "./chat.route.js";
 
 router.use("/auth", authRoute);
 router.use("/admin", adminRoute);
@@ -16,5 +17,6 @@ router.use("/conferences", conferenceRoute);
 router.use("/submissions", submissionsRoute);
 router.use("/registrations", registrationsRoute);
 router.use("/chat-ai", aiRoute);
+router.use("/chat", chatRoute);
 
 export default router;

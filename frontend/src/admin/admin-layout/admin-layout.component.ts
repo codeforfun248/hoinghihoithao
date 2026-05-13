@@ -26,24 +26,29 @@ import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 export class AdminLayoutComponent implements OnInit {
   routes: any = [
     {
-      label: 'Tổng quan',
+      label: 'Tổng quan',
       route: '/admin',
       icon: 'dashboard',
     },
     {
-      label: 'Quản lý hội nghị',
+      label: 'Quản lý hội nghị',
       route: '/admin/conferences',
       icon: 'file',
     },
     {
-      label: 'Quản lý Khoa/Viện',
+      label: 'Quản lý Khoa/Viện',
       route: '/admin/faculties',
       icon: 'snippets',
     },
     {
-      label: 'Quản lý người dùng',
+      label: 'Quản lý người dùng',
       route: '/admin/users',
       icon: 'team',
+    },
+    {
+      label: 'Hỗ trợ CSKH',
+      route: '/admin/chat',
+      icon: 'message',
     },
   ];
   isCollapsed = false;

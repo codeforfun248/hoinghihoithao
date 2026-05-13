@@ -12,6 +12,7 @@ import { ConferenceDetailComponent } from '../pages/conference-detail/conference
 import { AdminConferenceDetailComponent } from '../admin/conferences/admin-conference-detail/admin-conference-detail.component';
 import { MyConferencesComponent } from '../pages/my-conferences/my-conferences.component';
 import { ResetPasswordComponent } from '../pages/reset-password/reset-password.component';
+import { AdminChatComponent } from '../admin/chat/admin-chat.component';
 
 export const routes: Routes = [
   {
@@ -27,7 +28,6 @@ export const routes: Routes = [
         path: 'conferences/:id',
         component: ConferenceDetailComponent,
       },
-      // 👇 Thêm dòng này vào 👇
       { path: 'my-conferences', component: MyConferencesComponent },
       { path: 'reset-password', component: ResetPasswordComponent },
     ],
@@ -37,15 +37,15 @@ export const routes: Routes = [
   // { path: 'admin/login', component: AdminLoginComponent },
   {
     path: 'admin',
-    component: AdminLayoutComponent, // Layout chứa Sidebar/Header Admin
-    canActivate: [adminGuard], // <--- GẮN GUARD Ở ĐÂY
+    component: AdminLayoutComponent,
+    canActivate: [adminGuard],
     children: [
       { path: '', component: DashboardComponent },
       { path: 'conferences', component: ConferencesComponent },
-      // 👇 THÊM DÒNG NÀY ĐỂ VÀO TRANG CHI TIẾT HỘI NGHỊ TRONG ADMIN 👇
       { path: 'conferences/:id', component: AdminConferenceDetailComponent },
       { path: 'faculties', component: FacultiesComponent },
       { path: 'users', component: UsersComponent },
+      { path: 'chat', component: AdminChatComponent },
     ],
   },
 ];

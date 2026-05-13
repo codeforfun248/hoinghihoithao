@@ -1,0 +1,116 @@
+<!-- Nút CSKH góc phải trên -->
+<button class="cskh-fab" (click)="toggleChat()" [class.open]="isOpen" aria-label="Liên hệ CSKH">
+  <span class="cskh-fab-icon" *ngIf="!isOpen">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="white" viewBox="0 0 24 24">
+      <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+    </svg>
+  </span>
+  <span class="cskh-fab-icon" *ngIf="isOpen">✕</span>
+  <span class="cskh-fab-label">CSKH</span>
+</button>
+
+<!-- Khung chat -->
+<div class="cskh-container" *ngIf="isOpen">
+  <!-- Header -->
+  <div class="cskh-header">
+    <div class="cskh-header-info">
+      <div class="cskh-avatar">🎓</div>
+      <div>
+        <div class="cskh-title">Hỗ trợ khách hàng</div>
+        <div class="cskh-subtitle">
+          <span class="status-dot" [class.online]="connectionStatus === 'connected'"></span>
+          {{ connectionStatus === 'connected' ? 'Đang kết nối' : 'Đang kết nối lại...' }}
+        </div>
+      </div>
+    </div>
+    <button class="cskh-close" (click)="toggleChat()">✕</button>
+  </div>
+
+  <!-- Body -->
+  <div class="cskh-body" #chatBody>
+    <div *ngIf="messages.length === 0" class="cskh-empty">
+      <p>👋 Xin chào! Bạn cần hỗ trợ gì không?<br><small>Nhắn tin để được hỗ trợ.</small></p>
+    </div>
+
+    <div
+      *ngFor="let msg of messages; trackBy: trackById"
+      class="msg-wrapper"
+      [class.mine]="isMine(msg)"
+      [class.theirs]="!isMine(msg)"
+    >
+      <!-- Avatar phía admin -->
+      <div class="msg-avatar" *ngIf="!isMine(msg)">
+        <img
+          [src]="msg.sender?.avatar"
+          [alt]="msg.sender?.name"
+          onerror="this.src='https://ui-avatars.com/api/?name=Admin&background=1677ff&color=fff'"
+        />
+      </div>
+
+      <div class="msg-col">
+        <!-- Tin nhắn đã xóa -->
+        <div *ngIf="msg.isDeleted" class="msg-bubble deleted">
+          <em>Tin nhắn đã bị xóa</em>
+        </div>
+
+        <!-- Đang sửa -->
+        <div *ngIf="!msg.isDeleted && editingMessageId === msg._id" class="msg-edit-form">
+          <textarea [(ngModel)]="editingContent" rows="2" class="edit-textarea"></textarea>
+          <div class="edit-actions">
+            <button class="btn-save" (click)="confirmEdit(msg)">Lưu</button>
+            <button class="btn-cancel" (click)="cancelEdit()">Hủy</button>
+          </div>
+        </div>
+
+        <!-- Tin nhắn bình thường -->
+        <div
+          *ngIf="!msg.isDeleted && editingMessageId !== msg._id"
+          class="msg-bubble"
+          [class.mine-bubble]="isMine(msg)"
+          [class.sending]="!!msg._tempId"
+        >
+          <p *ngIf="msg.content" class="msg-text">{{ msg.content }}</p>
+          <img *ngIf="msg.imageUrl" [src]="msg.imageUrl" class="msg-image" alt="Hình ảnh" />
+        </div>
+
+        <!-- Meta -->
+        <div class="msg-meta" [class.mine-meta]="isMine(msg)">
+          <span>{{ msg._tempId ? 'Đang gửi...' : formatTime(msg.createdAt) }}</span>
+          <span *ngIf="msg.isEdited" class="edited-note"> · đã chỉnh sửa</span>
+          <!-- Actions chỉ hiện với tin đã lưu (có _id thật) -->
+          <span *ngIf="isMine(msg) && !msg.isDeleted && !msg._tempId" class="msg-actions">
+            <button class="action-btn" (click)="startEdit(msg)" title="Sửa">✏️</button>
+            <button class="action-btn" (click)="deleteMessage(msg)" title="Xóa">🗑️</button>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview ảnh đang chờ gửi -->
+  <div class="image-preview" *ngIf="previewImageUrl">
+    <img [src]="previewImageUrl" alt="preview" />
+    <button class="remove-img" (click)="removePendingImage()">✕</button>
+  </div>
+
+  <!-- Footer -->
+  <div class="cskh-footer">
+    <input type="file" #fileInput accept="image/*" (change)="onFileSelected($event)" style="display:none" />
+    <button class="attach-btn" (click)="triggerFileInput()" [disabled]="uploadingImage" title="Gửi hình ảnh">
+      <span *ngIf="!uploadingImage">📎</span>
+      <span *ngIf="uploadingImage">⏳</span>
+    </button>
+    <textarea
+      class="cskh-input"
+      [(ngModel)]="inputValue"
+      placeholder="Nhập tin nhắn..."
+      rows="1"
+      (keydown)="onKeydown($event)"
+    ></textarea>
+    <button class="send-btn" (click)="sendMessage()" [disabled]="!inputValue.trim() && !pendingImageUrl">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="white" viewBox="0 0 24 24">
+        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+      </svg>
+    </button>
+  </div>
+</div>

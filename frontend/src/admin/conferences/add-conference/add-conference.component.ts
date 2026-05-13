@@ -421,27 +421,25 @@ export class AddConferenceComponent implements OnInit {
       sponsors: this.sponsors,
     };
 
-    const cleanPayload = {
+    const cleanPayload: any = {
       ...conference,
-
-      // Thêm `: any` vào sau phần destructuring
       sessions: conference.sessions.map(({ _id, ...rest }: any) => rest),
-
-      // Lọc bỏ _id trong committees và cả members bên trong (nếu có)
       committees: conference.committees.map(({ _id, ...rest }: any) => ({
         ...rest,
         members: rest.members.map(({ _id, ...memberRest }: any) => memberRest),
       })),
-
-      // Lọc bỏ _id trong documents
       documents: conference.documents.map(({ _id, ...rest }: any) => rest),
-
-      // Lọc bỏ _id trong speakers (phòng hờ)
       speakers: conference.speakers?.map(({ _id, ...rest }: any) => rest),
-
-      // Lọc bỏ _id trong sponsors
       sponsors: conference.sponsors?.map(({ _id, ...rest }: any) => rest),
     };
+
+    // Xóa các field rỗng để tránh Mongoose CastError với ObjectId
+    if (!cleanPayload.faculty) delete cleanPayload.faculty;
+    if (!cleanPayload.img) delete cleanPayload.img;
+    if (!cleanPayload.map) delete cleanPayload.map;
+    if (!cleanPayload.desc) delete cleanPayload.desc;
+    if (!cleanPayload.desc_detail) delete cleanPayload.desc_detail;
+    if (!cleanPayload.submission_deadline) delete cleanPayload.submission_deadline;
 
     return new Promise((resolve) => {
       this.apiService.addConference(cleanPayload).then((res: any) => {
